@@ -1,0 +1,19 @@
+<div id="footer1" style="opacity: 0.85;">Copyright © <span id="copyrightYear"></span> <a href="{{ blogBase['homeUrl'] }}" style="color: inherit;">{{ blogBase['title'] }}</a></div>
+<div id="footer2" style="opacity: 0.7; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(128, 128, 128, 0.2);">
+    {%- if blogBase['filingNum']!='' -%}
+    <span id="filingNum"><a href="https://beian.miit.gov.cn/" target="_blank" style="color: inherit;">{{ blogBase['filingNum'] }}</a> • </span>
+    {%- endif %}
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank" style="color: inherit; text-decoration: underline;">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if("{{ blogBase['startSite'] }}"!=""){
+    var startSite=new Date("{{ blogBase['startSite'] }}");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="{{ i18n['run'] }}"+diffDay+"{{ i18n['days'] }}"+" • ";
+}
+</script>

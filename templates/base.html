@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="{{ blogBase['nightTheme'] }}" data-light-theme="{{ blogBase['dayTheme'] }}" lang={% if blogBase['i18n']=='CN' %}"zh-CN"{% elif blogBase['i18n']=='RU' %}"ru"{% else -%}"en"{%- endif -%}>
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    {{ blogBase['primerCSS'] }}
+    {{ blogBase['allHead'] }}
+    <link rel="icon" href="{{ blogBase['faviconUrl'] }}">
+    {%- if blogBase['themeMode']=='manual' -%}
+    <script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+    {%- endif -%}
+    {% block head %}{% endblock %}
+</head>
+<style>
+/* 背景图片层 */
+.bg-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* 桌面端背景 */
+.desktop-bg {
+    display: block;
+    background-image: url("{{ blogBase['desktopBackground'] }}");
+}
+
+/* 手机端背景 */
+.mobile-bg {
+    display: none;
+    background-image: url("{{ blogBase['mobileBackground'] }}");
+}
+
+/* 默认背景（无配置时） */
+.default-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 主容器毛玻璃效果 */
+.glass-container {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin: 20px auto;
+    padding: 30px;
+    max-width: 900px;
+    min-width: 200px;
+}
+
+/* 暗色模式毛玻璃 */
+[data-color-mode="dark"] .glass-container {
+    background: rgba(30, 30, 40, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* 基础样式 */
+body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    line-height: 1.25;
+    background: transparent;
+}
+
+#header {
+    display: flex;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+    margin-bottom: 20px;
+}
+
+#footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: small;
+    padding: 15px 0;
+}
+
+/* 手机端适配 */
+@media (max-width: 600px) {
+    .glass-container {
+        margin: 10px;
+        padding: 15px;
+        border-radius: 12px;
+    }
+    
+    .desktop-bg {
+        display: none;
+    }
+    
+    .mobile-bg {
+        display: block;
+    }
+    
+    /* 如果没有配置手机背景，使用桌面背景或默认渐变 */
+    .mobile-bg:not([style*="background-image: url"]) {
+        display: none;
+    }
+}
+
+/* 如果没有配置背景图片的处理 */
+{% if blogBase['desktopBackground']=='' and blogBase['mobileBackground']=='' %}
+.desktop-bg, .mobile-bg {
+    background-image: none;
+}
+.default-bg {
+    display: block;
+}
+{% endif %}
+
+{% if blogBase['mobileBackground']=='' %}
+@media (max-width: 600px) {
+    .desktop-bg {
+        display: block;
+    }
+    .mobile-bg {
+        display: none;
+    }
+}
+{% endif %}
+
+</style>
+{% block style %}{% endblock %}
+
+<body>
+    <!-- 背景层 -->
+    <div class="bg-layer default-bg"></div>
+    {% if blogBase['desktopBackground']!='' or blogBase['mobileBackground']!='' %}
+    <div class="bg-layer {% if blogBase['desktopBackground']!='' %}desktop-bg{% endif %}"></div>
+    {% if blogBase['mobileBackground']!='' %}
+    <div class="bg-layer mobile-bg"></div>
+    {% endif %}
+    {% endif %}
+    
+    <!-- 毛玻璃容器 -->
+    <div class="glass-container">
+        <div id="header">{% block header %}{% endblock %}</div>
+        <div id="content">{% block content %}{% endblock %}</div>
+        <div id="footer">{% include 'footer.html' %}</div>
+    </div>
+</body>
+<script>
+var IconList={{ IconList }};
+var utterancesLoad=0;
+{% if blogBase['themeMode']=='manual' %}
+let themeSettings={
+    "dark": ["dark","moon","\u0000f0ff","dark-blue"],
+    "light": ["light","sun","\u0000f5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+{%- endif %}
+console.log("\n %c Gmeek {{ blogBase['GMEEK_VERSION'] }} https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+{% block script %}{% endblock %}
+</html>
